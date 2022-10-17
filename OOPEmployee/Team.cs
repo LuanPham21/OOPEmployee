@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.Metrics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,22 +11,55 @@ namespace OOPEmployee
 {
     internal class Team : Company
     {
+        static int tableWidth = 100;
         public Team() { }
         public void XuatThongTin()
         {
+            Console.WriteLine();
+            PrintLine.PrintColumn();
+            PrintLine.PrintRow("Employee Code","Name Employee", "Salary");
+            PrintLine.PrintColumn();
+            for (int i = 0; i < data.Count; i++)
+            {
+                for (int j = 0; j < data[i].Count; j++)
+                {
+                    Employee employee = data[i][j];
+                    var tuple = employee.XuatThongTin();
+                    PrintLine.PrintRow(tuple.Item1,tuple.Item2,tuple.Item3);
+                    PrintLine.PrintColumn();
+                }
+            }
+        }
+
+        public void ShowAllEmployeee()
+        {
+            Console.WriteLine();
+            PrintLine.PrintColumn();
+            PrintLine.PrintRow("Employee Code", "Name Employee", "Salary");
+            PrintLine.PrintColumn();
+            for (int i = 0; i < data.Count; i++)
+            {
+                for (int j = 0; j < data[i].Count; j++)
+                {
+                    Employee employee = data[i][j];
+                    var tuple = employee.ShowAllEmployeee();
+                    PrintLine.PrintRow(tuple.Item1, tuple.Item2, tuple.Item3);
+                    PrintLine.PrintColumn();
+                }
+            }
+        }
+
+        public void TotalEmployees()
+        {
+            int count = 0;
             foreach (List<Employee> subList in data)
             {
-                foreach (Employee item in subList)
-                {
-                    //string flag = item.GetType().Name;
-                    //if (flag == "Manager")
-                    //{
-                    //    Console.WriteLine("Team Leader : {0}", item.getName());
-                    //}
-                    item.XuatThongTin();
-                }
-                Console.WriteLine();
+                int dem = subList.Count();
+                count += dem;
             }
+            PrintLine.PrintColumn();
+            PrintLine.PrintRow("Total amount of employees: " + count);
+            PrintLine.PrintColumn();
         }
 
         public void CreateTeam(Employee leader)
@@ -65,10 +100,11 @@ namespace OOPEmployee
                     string flag = item.GetType().Name;
                     if (flag == "Manager")
                     {
-                        Console.Write("Team Leader Name : {0} , EmployeeCode : {1}", item.getName(), item.getEmployeeCode());
+                        PrintLine.PrintColumn();
+                        PrintLine.PrintRow("Team Leader Name : " + item.getName() + " EmployeeCode : " + item.getEmployeeCode());
+                        PrintLine.PrintColumn();
                     }
                 }
-                Console.WriteLine();
             }
         }
 
@@ -110,56 +146,29 @@ namespace OOPEmployee
             foreach (List<Employee> subList in data)
             {
                 int dem = subList.Count();
-
                 if (count < dem)
                 {
-                    foreach (Employee item in subList)
-                    {
-                        string flag = item.GetType().Name;
-                        if (flag == "Manager")
-                        {
-                            employee = item.getName();
-                        }
-                    }
+                    employee = subList.Find(x => x.GetType().Name == "Manager").getName();
                     count = dem;
                 }
             }
-            Console.WriteLine("The name of manager who have most crowded member in the company : {0} ", employee);
-
+            PrintLine.PrintColumn();
+            PrintLine.PrintRow("The name of manager who have most crowded member in the company : " + employee);
+            PrintLine.PrintColumn();
         }
         public void MemberTeam()
         {
-            string employee = "";
             foreach (List<Employee> subList in data)
             {
-                int manager = 0, designer = 0, developer = 0, tester = 0;
-                foreach (Employee item in subList)
+                string employee = subList.Find(x => x.GetType().Name == "Manager").getName(); 
+                int num = subList.Select(x => x.GetType()).Distinct().Count();
+                if (num <= 3)
                 {
-                    string flag = item.GetType().Name;
-                    if (flag == "Manager")
-                    {
-                        manager++;
-                        employee = item.getName();
-                    }
-                    if (flag == "Developer")
-                    {
-                        developer++;
-                    }
-                    if (flag == "Designer")
-                    {
-                        designer++;
-                    }
-                    if (flag == "Tester")
-                    {
-                        tester++;
-                    }
-                }
-                if (manager == 0 || designer == 0 || developer == 0 || tester == 0)
-                {
-                    Console.WriteLine("The name of manager in team not enough 4 positions : {0} ", employee);
+                    PrintLine.PrintColumn();
+                    PrintLine.PrintRow("The name of manager in team not enough 4 positions : " + employee);
+                    PrintLine.PrintColumn();
                 }
             }
         }
-
     }
 }

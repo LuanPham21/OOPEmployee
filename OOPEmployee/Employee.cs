@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace OOPEmployee
@@ -14,10 +16,7 @@ namespace OOPEmployee
         protected double LevelNumber { get; set; }
         protected DateTime OnboardDate { get; set; }
 
-        public Employee()
-        {
-
-        }
+        public Employee() { }
 
         public Employee(string employeeCode, string name, int baseSalary, double levelNumber, DateTime onboardDate)
         {
@@ -27,6 +26,7 @@ namespace OOPEmployee
             this.LevelNumber = levelNumber;
             this.OnboardDate = onboardDate;
         }
+
         public string getName()
         {
             return this.Name;
@@ -39,24 +39,31 @@ namespace OOPEmployee
 
         public abstract void Position();
 
+        public double setBaseSalary()
+        {
+            return this.BaseSalary = 500000;
+        }
+
         public double Salary()
         {
+            setBaseSalary();
             DateTime today = DateTime.Today;
-            int NgayHomNay = today.Year * 10000 + today.Month * 100 + today.Day;
-            int NgayOnboard = this.OnboardDate.Year * 10000 + this.OnboardDate.Month * 100 + this.OnboardDate.Day;
-            int result = NgayHomNay - NgayOnboard + 1;
+            TimeSpan interval = today - this.OnboardDate;
+            int result = interval.Days;
             return this.BaseSalary * this.LevelNumber * result;
         }
 
-
         public string generateID()
         {
-
             string number = String.Format("{0:d9}", (DateTime.Now.Ticks / 10) % 1000000000);
-
             return number;
         }
 
+        public static bool CheckName(string filename)
+        {
+            string azpattern = "[a-z]+";
+            return Regex.IsMatch(filename, azpattern);
+        }
 
         public void NhapThongTin()
         {
@@ -68,21 +75,8 @@ namespace OOPEmployee
                 {
                     Console.Write("Please enter name: ");
                     this.Name = Console.ReadLine();
-                    break;
-                }
-                catch
-                {
-                    Console.WriteLine("Invalid data Please re-enter");
-                }
-            }
-
-            while (true)
-            {
-                try
-                {
-                    Console.Write("Please enter BaseSalary: ");
-                    this.BaseSalary = Int32.Parse(Console.ReadLine());
-                    break;
+                    if(CheckName(this.Name)) break;
+                    else Console.WriteLine("Invalid data Please re-enter");
                 }
                 catch
                 {
@@ -110,22 +104,26 @@ namespace OOPEmployee
                 {
                     Console.Write("Please enter OnboardDate format yyyy-MM-dd: ");
                     this.OnboardDate = Convert.ToDateTime(Console.ReadLine());
-                    break;
+                    if (this.OnboardDate < DateTime.Now.Date) break;
+                    else Console.WriteLine("OnboardDate is now limited to date.");
                 }
                 catch
                 {
                     Console.WriteLine("Invalid data Please re-enter");
                 }
             }
-
         }
 
-        public void XuatThongTin()
+        public Tuple<string, string, string> XuatThongTin()
         {
             var info = System.Globalization.CultureInfo.GetCultureInfo("vi-VN");
+            string salary = String.Format(info, "{0:c}", this.Salary());
+            return new Tuple<string, string, string>(this.EmployeeCode, this.Name, salary);
+        }
 
-            Console.WriteLine("Name : {0}", this.Name);
-            Console.WriteLine("Salary : {0}", String.Format(info, "{0:c}", this.Salary()));
+        public Tuple<string,string, string> ShowAllEmployeee()
+        {
+            return new Tuple<string,string, string>(this.EmployeeCode,this.Name,this.OnboardDate.ToString("yyyy/MM/dd"));
         }
     }
 }
